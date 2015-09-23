@@ -7,15 +7,20 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 
+import me.imid.swipebacklayout.lib.SwipeBackLayout;
+import me.imid.swipebacklayout.lib.Utils;
+import me.imid.swipebacklayout.lib.app.SwipeBackActivityBase;
+import me.imid.swipebacklayout.lib.app.SwipeBackActivityHelper;
 import me.itangqi.buildingblocks.R;
 
-/*
- * Thanks
- * Author: drakeet
+/**
+ * 手势右划返回
+ * Created by tangqi on 9/13/15.
  */
-
-public abstract class ToolbarActivity extends AppCompatActivity {
+public abstract class SwipeBackActivity extends AppCompatActivity implements SwipeBackActivityBase {
+    private SwipeBackActivityHelper mHelper;
 
     abstract protected int getLayoutResource();
 
@@ -26,7 +31,6 @@ public abstract class ToolbarActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutResource());
-
         mAppBar = (AppBarLayout) findViewById(R.id.app_bar_layout);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
@@ -44,6 +48,38 @@ public abstract class ToolbarActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 21) {
             mAppBar.setElevation(10.6f);
         }
+        mHelper = new SwipeBackActivityHelper(this);
+        mHelper.onActivityCreate();
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mHelper.onPostCreate();
+    }
+
+    @Override
+    public View findViewById(int id) {
+        View v = super.findViewById(id);
+        if (v == null && mHelper != null)
+            return mHelper.findViewById(id);
+        return v;
+    }
+
+    @Override
+    public SwipeBackLayout getSwipeBackLayout() {
+        return mHelper.getSwipeBackLayout();
+    }
+
+    @Override
+    public void setSwipeBackEnable(boolean enable) {
+        getSwipeBackLayout().setEnableGesture(enable);
+    }
+
+    @Override
+    public void scrollToFinishActivity() {
+        Utils.convertActivityToTranslucent(this);
+        getSwipeBackLayout().scrollToFinishActivity();
     }
 
     public boolean canBack() {
@@ -59,4 +95,6 @@ public abstract class ToolbarActivity extends AppCompatActivity {
             return super.onOptionsItemSelected(item);
         }
     }
+
+
 }

@@ -1,31 +1,36 @@
-Building Blocks - 积木
-=====================
+# Building Blocks
 
-**积木**是以  [Izzy Leung](https://github.com/izzyleung) 提供的 [知乎日报 API](https://github.com/izzyleung/ZhihuDailyPurify/wiki/%E7%9F%A5%E4%B9%8E%E6%97%A5%E6%8A%A5-API-%E5%88%86%E6%9E%90) 既知乎日报为数据展现内容；以 OptionsMenu（选项菜单）的形式为功能扩展入口；以 Design Support Library（依循 Material Design）为主导设计 UI。
+[中文介绍](README.z.md)
+
+![logo](http://7xk54v.com1.z0.glb.clouddn.com/images/logo/icon.png)
+
+>**Building Blocks** with Zhihu Daily API as a source of data; OptionsMenu as extensions of the entry; Design Support Library as UI design leader.I know, it sounds cool！
 
 ### How to use
 
-那么，你该如何利用她呢？
+>dev branch is currently maintained by [troyliu0105](https://github.com/troyliu0105), he will continue to reconstruct the building blocks and increase the fun of the function, if you also like, then welcome **Star** and **Fork** this branch!
 
-好啦，其实我已经帮完成了整体框架的搭建，你需要做的，仅仅是依据自己的实际需求，简单的替换下数据来源（API）然后改改 UI，就可以快速地完成一款全新应用的开发啦！
+Well, actually, I have to help you complete the overall framework set up, you need to do is just based on actual demand, simply replace data at source, and modify UI, you can quickly complete a new application development！
 
-想想，还有点小激动？那么赶紧 **Star** 与 **Fork** 吧！你的支持将成为我最大的动力与褒奖！
+Think about it, it is not very exciting? So hurry **Star** and **Fork** it! Your support will be my greatest motivation and praise!
 
-## Features - 功能点
+## Update Log
 
-- About - 关于页面
-- Pick Photo - 选择与裁剪照片
-- Pick Place - 选择位置（需安装 Google Play Services 与 翻墙 - WTF）
-- Settings - 详细设置（只实现 UI）
-- MaterialDrawer - 导航抽屉（只实现 UI）
-- Design Support Library 不完全使用
-- 未完待续 ......
+### v0.5.1
 
-## Demo - 示例
+- Abandon - CardView, return to simple, more in line with the design specifications
+- Abandon - third party DrawerLayout, flashy guy
+- Abandon - WebView article title bar at the top, instead of sharing buttons
+- New - Search function, display the search results page jump
+- New - Right slide gestures, return to the previous page function (Bug v0.5.0 appearing been fixed)
+- Optimization - Extended capabilities as a drawer sub-menu options
+- Reconstruction -  As far as possible, the code is written and structured elegance
 
-[快速下载](https://github.com/tangqi92/BuildingBlocks/releases/download/v0.3.0/buildingblocks_v0.3.0.apk)
+## Demo
 
-## Screenshots - 预览
+[Download](https://github.com/tangqi92/BuildingBlocks/releases/download/v0.5.1/buildingblocks_v0.5.1.apk)
+
+## Screenshots
 <img src="/screenshots/s1.png" alt="screenshot" title="screenshot" width="270" height="486" />  <img src="/screenshots/s2.png" alt="screenshot" title="screenshot" width="270" height="486" />
 
 <img src="/screenshots/s3.png" alt="screenshot" title="screenshot" width="270" height="486" />  <img src="/screenshots/s4.png" alt="screenshot" title="screenshot" width="270" height="486" />
@@ -34,42 +39,42 @@ Building Blocks - 积木
 
 <img src="/screenshots/s7.png" alt="screenshot" title="screenshot" width="270" height="486" />  <img src="/screenshots/s8.png" alt="screenshot" title="screenshot" width="270" height="486" />
 
+<img src="/screenshots/s9.png" alt="screenshot" title="screenshot" width="270" height="486" />  <img src="/screenshots/s10.png" alt="screenshot" title="screenshot" width="270" height="486" />
 
-## Dependencies - 开源项目
+
+
+## Dependencies
 
  - [glide](https://github.com/bumptech/glide)
  - [logger](https://github.com/orhanobut/logger)
  - [butterknife](https://github.com/JakeWharton/butterknife)
  - [android-crop](https://github.com/jdamcd/android-crop)
- - [MaterialDrawer](https://github.com/mikepenz/MaterialDrawer)
  - [android-async-http](https://github.com/loopj/android-async-http)
+ - [SwipeBackLayout](https://github.com/ikew0ng/SwipeBackLayout)
 
-## Thanks - 感谢你们
+## Thanks
 
-- 感谢 [drakeet](https://github.com/drakeet) 及他的 [妹纸&gank.io](https://github.com/drakeet/Meizhi)， 其代码写得真的非常漂亮：)，从中学到了很多并运用到了项目中（依葫芦画瓢而已啦）
+- Thank [drakeet](https://github.com/drakeet) and his [妹纸&gank.io](https://github.com/drakeet/Meizhi), the code he wrote is very beautiful：）, I learned a lot and applied to the project.
 
-- 感谢 [Izzy Leung](https://github.com/izzyleung) 及他的 [知乎日报·净化](https://github.com/izzyleung/ZhihuDailyPurify)，项目最初的原型就来自于此，感谢其提供了详细的知乎日报 API 说明
+- Thank [Izzy Leung](https://github.com/izzyleung) and his [知乎日报·净化](https://github.com/izzyleung/ZhihuDailyPurify)，the initial prototype project will come from this.
 
-## Help - 帮帮我
+## Contributors
 
-天生不是做设计的料，至今还没学会 Sketch，更别说 PS 了，所以，「积木」的「应用图标」至今还缺省着。
+- [troyliu0105](https://github.com/troyliu0105)
+- logo: [Mao](http://weibo.com/cat93/) & troyliu0105
 
-不愿将就的我，愿意等，如果你正好发现了她，又正好没处发挥你的才华的话，那么不妨为她设计个漂亮的图标吧：）
+## Contact Me
 
-你能在下面找到我的联系方式，在此我先替她谢过啦！！！
+Born in 1992, now a student of Southeast University, master of software engineerin. Loving technology, programming, reading and sports.
 
-## Contact - 联系我
+I will graduate in June 2017, expect the internship or full-time job in Android or iOS.
 
-- Weibo：[汤奇V](http://weibo.com/qiktang)
-- Blog: [http://itangqi.me](http://itangqi.me)
-- Gmail：[imtangqi#gmail.com](mailto:imtangqi@gmail.com "欢迎与我联系")
+If you have any questions or want to make friends with me, please feel free to contact me : [imtangqi#gmail.com](mailto:imtangqi@gmail.com "Welcome to contact me")
 
-## Project Home - 项目主页
+## Project Home
 
-[http://itangqi.me/android/building-blocks/](http://itangqi.me/android/building-blocks/)
+[http://itangqi.me/2015/09/03/building-blocks/](http://itangqi.me/2015/09/03/building-blocks/)
 
-## License - 许可证
+## License
 
-源代码在 GPL v3 协议下发布
-
-[LICENSE](/LICENSE)
+[GPLv3](/LICENSE)

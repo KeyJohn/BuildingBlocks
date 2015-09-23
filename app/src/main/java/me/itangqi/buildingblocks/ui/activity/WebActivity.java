@@ -3,6 +3,8 @@ package me.itangqi.buildingblocks.ui.activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -11,24 +13,26 @@ import android.widget.ProgressBar;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import me.imid.swipebacklayout.lib.SwipeBackLayout;
 import me.itangqi.buildingblocks.R;
-import me.itangqi.buildingblocks.ui.activity.base.ToolbarActivity;
+import me.itangqi.buildingblocks.ui.activity.base.SwipeBackActivity;
+import me.itangqi.buildingblocks.utils.ShareUtils;
 
 /*
  * Thanks to
  * Author: drakeet
  */
 
-public class WebActivity extends ToolbarActivity {
+public class WebActivity extends SwipeBackActivity {
 
     public static final String EXTRA_URL = "extra_url";
-    public static final String EXTRA_TITLE = "extra_title";
+    private SwipeBackLayout mSwipeBackLayout;
 
     @Bind(R.id.progressbar) ProgressBar mProgressbar;
     @Bind(R.id.webView) WebView mWebView;
 
     Context mContext;
-    String mUrl, mTitle;
+    String mUrl;
 
     @Override
     protected int getLayoutResource() {
@@ -43,10 +47,10 @@ public class WebActivity extends ToolbarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         ButterKnife.bind(this);
         mContext = this;
         mUrl = getIntent().getStringExtra(EXTRA_URL);
-        mTitle = getIntent().getStringExtra(EXTRA_TITLE);
 
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.setWebChromeClient(new ChromeClient());
@@ -55,7 +59,27 @@ public class WebActivity extends ToolbarActivity {
         mWebView.getSettings().setAppCacheEnabled(true);
         mWebView.loadUrl(mUrl);
 
-        setTitle(mTitle);
+        mSwipeBackLayout = getSwipeBackLayout();
+        mSwipeBackLayout.setEdgeTrackingEnabled(SwipeBackLayout.EDGE_LEFT);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_about, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            case R.id.menu_share:
+                ShareUtils.share(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -103,12 +127,6 @@ public class WebActivity extends ToolbarActivity {
             } else if (newProgress != 100) {
                 mProgressbar.setVisibility(View.VISIBLE);
             }
-        }
-
-        @Override
-        public void onReceivedTitle(WebView view, String title) {
-            super.onReceivedTitle(view, title);
-            setTitle(title);
         }
     }
 

@@ -1,35 +1,26 @@
 package me.itangqi.buildingblocks.ui.activity;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-
-import com.mikepenz.google_material_typeface_library.GoogleMaterial;
-import com.mikepenz.iconics.IconicsDrawable;
-import com.mikepenz.iconics.typeface.FontAwesome;
-import com.mikepenz.materialdrawer.Drawer;
-import com.mikepenz.materialdrawer.DrawerBuilder;
-import com.mikepenz.materialdrawer.accountswitcher.AccountHeader;
-import com.mikepenz.materialdrawer.accountswitcher.AccountHeaderBuilder;
-import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
-import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
-import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem;
-import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
-import com.mikepenz.materialdrawer.model.SectionDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
 import java.text.DateFormat;
 import java.util.Calendar;
@@ -41,20 +32,22 @@ import me.itangqi.buildingblocks.R;
 import me.itangqi.buildingblocks.ui.activity.base.BaseActivity;
 import me.itangqi.buildingblocks.ui.fragment.NewsListFragment;
 import me.itangqi.buildingblocks.utils.Constants;
-import me.itangqi.buildingblocks.utils.ToastUtils;
+import me.itangqi.buildingblocks.utils.NetworkUtils;
 
 public class MainActivity extends BaseActivity {
-    // save our header or result
-    private AccountHeader headerResult = null;
-    private Drawer result = null;
 
-    @Bind(R.id.tabs) TabLayout tabs;
-    @Bind(R.id.pager) ViewPager pager;
-    @Bind(R.id.toolbar) Toolbar toolbar;
+    @Bind(R.id.drawer_layout) DrawerLayout mDrawerLayout;
+    @Bind(R.id.coordinatorLayout) CoordinatorLayout mContainer;
+    @Bind(R.id.navigation_view) NavigationView mNavigationView;
+    @Bind(R.id.tabs) TabLayout mTabLayout;
+    @Bind(R.id.pager) ViewPager mViewPager;
+    @Bind(R.id.toolbar) Toolbar mToolbar;
 
     @OnClick(R.id.fab)
-    public void fabOnClick(){
-        ToastUtils.showShort(R.string.rest_over_to_you);
+    public void fabOnClick() {
+        FragmentStatePagerAdapter adapter = (FragmentStatePagerAdapter) mViewPager.getAdapter();
+        NewsListFragment fragment = (NewsListFragment) adapter.instantiateItem(mViewPager, mViewPager.getCurrentItem());
+        fragment.onRefresh();
     }
 
     @Override
@@ -62,49 +55,147 @@ public class MainActivity extends BaseActivity {
         layoutResID = R.layout.activity_main;
         super.onCreate(savedInstanceState);
         ButterKnife.bind(this);
-        pager.setOffscreenPageLimit(Constants.PAGE_COUNT);
-        MyPagerAdapter adapter = new MyPagerAdapter(getSupportFragmentManager());
-        pager.setAdapter(adapter);
-        tabs.setupWithViewPager(pager);
-        createProfile(savedInstanceState);
-    }
 
-    @Override
-    public void onBackPressed() {
-        //handle the back press :D close the drawer first and if the drawer is closed close the activity
-        if (result != null && result.isDrawerOpen()) {
-            result.closeDrawer();
-        } else {
-            super.onBackPressed();
+        if (!NetworkUtils.isNetworkConnected(this)) {
+            Snackbar.make(mContainer, R.string.snack_network_error, Snackbar.LENGTH_LONG).show();
+        }
+
+        if (mNavigationView != null) {
+            setupDrawerContent();
+        }
+
+        setupActionBarToggle();
+
+        if (mViewPager != null) {
+            setupViewPager();
         }
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        //add the values which need to be saved from the drawer to the bundle
-        outState = result.saveInstanceState(outState);
-        //add the values which need to be saved from the accountHeader to the bundle
-        outState = headerResult.saveInstanceState(outState);
-        super.onSaveInstanceState(outState);
+    private void setupDrawerContent() {
+        mNavigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        //Checking if the item is in checked state or not, if not make it in checked state
+                        if (menuItem.isChecked()) menuItem.setChecked(false);
+                        else menuItem.setChecked(true);
+                        //Closing drawer on item click
+                        mDrawerLayout.closeDrawers();
+                        //Check to see which item was being clicked and perform appropriate action
+                        switch (menuItem.getItemId()) {
+                            case R.id.nav_pick_photo:
+                                return prepareIntent(PickPhotoActivity.class);
+                            case R.id.nav_pick_place:
+                                return prepareIntent(GooglePlacesActivity.class);
+                            case R.id.nav_settings:
+                                return prepareIntent(PrefsActivity.class);
+                            case R.id.nav_about:
+                                return prepareIntent(AboutActivity.class);
+                            default:
+                                return true;
+                        }
+                    }
+                });
+    }
+
+    private void setupActionBarToggle() {
+        // Initializing Drawer Layout and ActionBarToggle
+        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.openDrawerContentDescRes, R.string.closeDrawerContentDescRes) {
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                // Code here will be triggered once the drawer closes as we dont want anything to happen so we leave this blank
+                super.onDrawerClosed(drawerView);
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                // Code here will be triggered once the drawer open as we dont want anything to happen so we leave this blank
+                super.onDrawerOpened(drawerView);
+            }
+        };
+
+        //Setting the actionbarToggle to drawer layout
+        mDrawerLayout.setDrawerListener(actionBarDrawerToggle);
+
+        //calling sync state is necessay or else your hamburger icon wont show up
+        actionBarDrawerToggle.syncState();
+    }
+
+    private void setupViewPager() {
+        mViewPager.setOffscreenPageLimit(Constants.PAGE_COUNT);
+        MyPagerAdapter adapter = new MyPagerAdapter(getSupportFragmentManager());
+        mViewPager.setAdapter(adapter);
+        mTabLayout.setupWithViewPager(mViewPager);
+    }
+
+    private void setupSearchView(Menu menu) {
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        final MenuItem searchMenuItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) searchMenuItem
+                .getActionView();
+        searchView.setIconifiedByDefault(true);
+        if (searchManager != null && searchView != null) {
+            searchView.setSearchableInfo(searchManager
+                    .getSearchableInfo(getComponentName()));
+
+            searchView
+                    .setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+
+                        @Override
+                        public void onFocusChange(View v, boolean hasFocus) {
+
+                            if (!hasFocus) {
+                                if (searchMenuItem != null) {
+                                    searchMenuItem.collapseActionView();
+                                }// end if
+                                if (searchView != null) {
+                                    searchView.onActionViewCollapsed();
+                                }// end if
+                            }// end if
+                        }
+                    });
+
+            searchView
+                    .setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+                        @Override
+                        public boolean onQueryTextSubmit(String query) {
+                            /**
+                             * hides and then unhides search tab to make sure
+                             * keyboard disappears when query is submitted
+                             */
+                            if (searchView != null) {
+                                searchView.setVisibility(View.INVISIBLE);
+                                searchView.setVisibility(View.VISIBLE);
+                            }
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onQueryTextChange(String newText) {
+                            // TODO Auto-generated method stub
+                            return false;
+                        }
+                    });
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+        setupSearchView(menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_action_about:
-                return prepareIntent(AboutActivity.class);
-            case R.id.menu_action_pick_photo:
-                return prepareIntent(PickPhotoActivity.class);
-            case R.id.menu_action_pick_place:
-                return prepareIntent(GooglePlacesActivity.class);
-            case R.id.menu_action_settings:
-                return prepareIntent(PrefsActivity.class);
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+            default:
+                Snackbar.make(mContainer, R.string.snack_rest_over_to_you, Snackbar.LENGTH_LONG).show();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -112,93 +203,6 @@ public class MainActivity extends BaseActivity {
     private boolean prepareIntent(Class clazz) {
         startActivity(new Intent(MainActivity.this, clazz));
         return true;
-    }
-
-    public void createProfile(Bundle savedInstanceState) {
-        // Create a few sample profile
-        // NOTE you have to define the loader logic too. See the CustomApplication for more details
-        final IProfile profile = new ProfileDrawerItem().withName("Qi Tang").withEmail("imtangqi@gmail.com").withIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_avatar_tangqi));
-        // Create the AccountHeader
-        headerResult = new AccountHeaderBuilder()
-                .withActivity(this)
-                .withHeaderBackground(R.drawable.header)
-                .addProfiles(
-                        profile,
-                        //don't ask but google uses 14dp for the add account icon in gmail but 20dp for the normal icons (like manage account)
-                        new ProfileSettingDrawerItem().withName("Add Account").withDescription("Add new GitHub Account").withIcon(new IconicsDrawable(this, GoogleMaterial.Icon.gmd_add).actionBarSize().paddingDp(5).colorRes(R.color.material_drawer_primary_text)).withIdentifier(Constants.PROFILE_SETTING),
-                        new ProfileSettingDrawerItem().withName("Manage Account").withIcon(GoogleMaterial.Icon.gmd_settings)
-                )
-                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
-                    @Override
-                    public boolean onProfileChanged(View view, IProfile profile, boolean current) {
-                        //sample usage of the onProfileChanged listener
-                        //if the clicked item has the identifier 1 add a new profile ;)
-                        if (profile instanceof IDrawerItem && ((IDrawerItem) profile).getIdentifier() == Constants.PROFILE_SETTING) {
-                            IProfile newProfile = new ProfileDrawerItem().withNameShown(true).withName("Building Blocks").withEmail("buildingblocks@gmail.com").withIcon(getResources().getDrawable(R.mipmap.ic_launcher));
-                            if (headerResult.getProfiles() != null) {
-                                //we know that there are 2 setting elements. set the new profile above them ;)
-                                headerResult.addProfile(newProfile, headerResult.getProfiles().size() - 2);
-                            } else {
-                                headerResult.addProfiles(newProfile);
-                            }
-                        }
-                        //false if you have not consumed the event and it should close the drawer
-                        return false;
-                    }
-                })
-                .withSavedInstance(savedInstanceState)
-                .build();
-        //Create the drawer
-        result = new DrawerBuilder()
-                .withActivity(this)
-                .withToolbar(toolbar)
-                .withAccountHeader(headerResult) //set the AccountHeader we created earlier for the header
-                .addDrawerItems(
-                        new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIcon(FontAwesome.Icon.faw_home),
-                        //here we use a customPrimaryDrawerItem we defined in our sample app
-                        //this custom DrawerItem extends the PrimaryDrawerItem so it just overwrites some methods
-                        new PrimaryDrawerItem().withName(R.string.drawer_item_free_play).withIcon(FontAwesome.Icon.faw_gamepad),
-                        new PrimaryDrawerItem().withName(R.string.drawer_item_custom).withDescription("This is a description").withIcon(FontAwesome.Icon.faw_eye),
-                        new SectionDrawerItem().withName(R.string.drawer_item_section_header),
-                        new SecondaryDrawerItem().withName(R.string.drawer_item_settings).withIcon(FontAwesome.Icon.faw_cart_plus),
-                        new SecondaryDrawerItem().withName(R.string.drawer_item_help).withIcon(FontAwesome.Icon.faw_database).setEnabled(false),
-                        new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIcon(FontAwesome.Icon.faw_github),
-                        new SecondaryDrawerItem().withName(R.string.drawer_item_contact).withSelectedIconColor(Color.RED).withIconTintingEnabled(true).withIcon(new IconicsDrawable(this, GoogleMaterial.Icon.gmd_add).actionBarSize().paddingDp(5).colorRes(R.color.material_drawer_dark_primary_text)).withTag("Bullhorn"),
-                        new SecondaryDrawerItem().withName(R.string.drawer_item_help).withIcon(FontAwesome.Icon.faw_question).setEnabled(false)
-                ) // add the items we want to use with our Drawer
-                .withOnDrawerNavigationListener(new Drawer.OnDrawerNavigationListener() {
-                    @Override
-                    public boolean onNavigationClickListener(View clickedView) {
-                        //this method is only called if the Arrow icon is shown. The hamburger is automatically managed by the MaterialDrawer
-                        //if the back arrow is shown. close the activity
-                        //return true if we have consumed the event
-                        return true;
-                    }
-                })
-                .addStickyDrawerItems(
-                        new SecondaryDrawerItem().withName(R.string.drawer_item_settings).withIcon(FontAwesome.Icon.faw_cog).withIdentifier(10),
-                        new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIcon(FontAwesome.Icon.faw_github)
-                )
-                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                    @Override
-                    public boolean onItemClick(AdapterView<?> adapterView, View view, int i, long l, IDrawerItem iDrawerItem) {
-                        // do something with the clicked item :D
-                        ToastUtils.showShort(R.string.rest_over_to_you);
-                        return false;
-                    }
-                })
-                .withAnimateDrawerItems(true)
-                .withSavedInstance(savedInstanceState)
-                .build();
-
-        //only set the active selection or active profile if we do not recreate the activity
-        if (savedInstanceState == null) {
-            // set the selection to the item with the identifier 11
-            result.setSelectionByIdentifier(11, false);
-
-            //set the active profile
-            headerResult.setActiveProfile(profile);
-        }
     }
 
     /**
@@ -210,18 +214,17 @@ public class MainActivity extends BaseActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK
                 && event.getAction() == KeyEvent.ACTION_DOWN) {
+
             if ((System.currentTimeMillis() - exitTime) > 3000) {
-                ToastUtils.showShort(getString(R.string.exit_once_more));
+                Snackbar.make(mContainer, R.string.snack_exit_once_more, Snackbar.LENGTH_LONG).show();
                 exitTime = System.currentTimeMillis();
             } else {
                 finish();
-                System.exit(0);
             }
             return true;
         }
         return super.onKeyDown(keyCode, event);
     }
-
 
     private class MyPagerAdapter extends FragmentStatePagerAdapter {
         public MyPagerAdapter(FragmentManager fm) {

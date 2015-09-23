@@ -14,12 +14,15 @@ import java.io.File;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import me.imid.swipebacklayout.lib.SwipeBackLayout;
 import me.itangqi.buildingblocks.R;
-import me.itangqi.buildingblocks.ui.activity.base.ToolbarActivity;
+import me.itangqi.buildingblocks.ui.activity.base.SwipeBackActivity;
 
-public class PickPhotoActivity extends ToolbarActivity {
+public class PickPhotoActivity extends SwipeBackActivity {
 
     @Bind(R.id.result_image) ImageView resultView;
+
+    private SwipeBackLayout mSwipeBackLayout;
 
     @Override
     protected int getLayoutResource() {
@@ -35,7 +38,9 @@ public class PickPhotoActivity extends ToolbarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ButterKnife.bind(this);
-        setTitle(getString(R.string.pick_photo_title));
+        setTitle(getString(R.string.title_pick_photo));
+        mSwipeBackLayout = getSwipeBackLayout();
+        mSwipeBackLayout.setEdgeTrackingEnabled(SwipeBackLayout.EDGE_LEFT);
     }
 
     @Override
@@ -46,7 +51,7 @@ public class PickPhotoActivity extends ToolbarActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_select) {
+        if (item.getItemId() == R.id.menu_action_pick_photo) {
             resultView.setImageDrawable(null);
             Crop.pickImage(this);
             return true;

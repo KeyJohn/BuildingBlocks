@@ -1,18 +1,24 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Root.Theme.AppTheme" parent="Base.Theme.AppTheme">
+        <!-- 解决activity切换时的黑屏问题 -->
+        <item name="android:windowIsTranslucent">false</item>
+    </style>
+
+    <style name="Base.Theme.AppTheme" parent="Theme.AppTheme">
+        <!-- 解决activity切换时的黑屏问题 -->
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
+    <style name="Theme.AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Material Theme -->
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
-        <item name="android:textColorPrimary">@android:color/white</item>
     </style>
 
-    <style name="Prefs" parent="AppTheme">
-        <item name="android:textColorPrimary">@color/secondary_text</item>
-    </style>
-
-    <style name="CollapsingToolbarTitleStyle" parent="Widget.Design.CollapsingToolbar">
+    <style name="CollapsingToolbarTitleStyle"
+           parent="@android:style/TextAppearance">
         <item name="android:textColor">@android:color/transparent</item>
     </style>
 
